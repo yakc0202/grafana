@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+Environment="AWS_STS_REGIONAL_ENDPOINTS=regional"
+ExecStart=/usr/local/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver --storage.tsdb.wal-compression --storage.tsdb.retention.time=365d --storage.tsdb.path=/data/prometheus/data
+Restart=always
+[Install]
+WantedBy=multi-user.target
