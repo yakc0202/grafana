@@ -1,0 +1,44 @@
+server:
+  log_level: info
+
+metrics:
+  global:
+    scrape_interval: 1m
+    remote_write:
+    - url: "<AMP RemoteWrite URL>"
+      sigv4:
+        region: <Region>
+        role_arn: <AMP Role ARN>
+
+
+  wal_directory: C:\ProgramData\grafana-agent-wal
+  configs:
+    - name: <name>
+      scrape_configs:
+      - job_name: <job name>
+        metrics_path: /integrations/windows_exporter/metrics
+        ec2_sd_configs:
+          - region: ap-northeast-2
+            port: 12345
+        relabel_configs:
+          - source_labels: [__meta_ec2_tag_Name]
+            target_label: instance_name
+          - source_labels: [__meta_ec2_owner_id]
+            target_label: aws_account_id
+          - source_labels: [__meta_ec2_private_ip]
+            target_label: private_ip
+          - source_labels: [__meta_ec2_instance_id]
+            target_label: instance_id
+          - source_labels: [__meta_ec2_tag_Name, __meta_ec2_instance_id]
+            regex: ([^;]+);([^;]+)
+            replacement: ${1} / ${2}
+            target_label: instance_name_id
+        metric_relabel_configs:
+          - source_labels: [__name__]
+            regex: '(up|scrape_series_added|scrape_duration_seconds|scrape_samples_scraped|scrape_samples_post_metric_relabeling)'
+            action: 'drop'
+
+integrations:
+ windows_exporter:
+  enabled: true
+  scrape_integration: false

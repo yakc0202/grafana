@@ -1,0 +1,21 @@
+[Unit]
+Description=Monitoring system and forwarder
+Documentation=https://grafana.com/docs/agent/latest/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Restart=always
+User=grafana-agent
+Environment=HOSTNAME=%H
+EnvironmentFile=/etc/sysconfig/grafana-agent
+WorkingDirectory=/var/lib/grafana-agent
+ExecStart=/usr/bin/grafana-agent --config.file /etc/grafana-agent.yaml -server.http.address=%H:9115 -server.grpc.address=%H:9116
+ExecReload=/usr/bin/env kill -HUP $MAINPID
+# If running the Agent in scraping service mode, you will want to override this value with
+# something larger to allow the Agent to gracefully leave the cluster. 4800s is recommend.
+TimeoutStopSec=20s
+SendSIGKILL=no
+
+[Install]
+WantedBy=multi-user.target

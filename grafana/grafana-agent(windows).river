@@ -1,0 +1,20 @@
+logging {
+        level = "warn"
+}
+
+prometheus.exporter.windows "default" {
+  enabled_collectors = ["cpu", "memory", cs", "logical_disk", "net", "os", "service", "system", "textfile", "time", "diskdrive"]
+}
+
+prometheus.scrape "default" {
+        targets = concat(
+                prometheus.exporter.windows.default.targets,
+        )
+        forward_to = [ prometheus.remote_write.default.receiver ]
+}
+
+prometheus.remote_write "default" {
+        endpoint {
+                url = "http://100.124.66.130:9090/api/v1/write"
+        }
+}
